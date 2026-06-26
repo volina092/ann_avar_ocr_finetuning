@@ -2,7 +2,7 @@
 
 Извлечение текста из сканов **аварских газет**: сегментация вёрстки, OCR и fine-tuning модели распознавания.
 
-Основной рабочий путь — **классическая сегментация** (connected components) + **`cyrillic_PP-OCRv5_mobile_rec`**.  
+Основной рабочий путь — классическая сегментация (connected components) + **PaddleOCR c моделью `cyrillic_PP-OCRv5_mobile_rec`**.  
 **PP-StructureV3** оставлен как exploratory baseline: на газетной вёрстке он работает хуже, чем классический пайплайн.
 
 ## Pipeline
