@@ -33,6 +33,7 @@ fine-tuned model → OCR на новых страницах
 ## Структура
 
 ann_avar_ocr_finetuning/
+
 ├── notebooks/          # основной пайплайн (тетрадки для запуска в Colab)
 
 ├── scripts/            # локальные утилиты (PDF → PNG, словарь, черновик разметки)
@@ -45,7 +46,7 @@ ann_avar_ocr_finetuning/
 
 ├── train_pdfs/         # отрендеренные страницы для обучения
 
-├── tlarta_all_pdfs/    # полный корпус (gitignored, потому что слишком большой)
+    ├── tlarta_all_pdfs/    # полный корпус (gitignored, потому что слишком большой)
 
 
 ## Ссылки
