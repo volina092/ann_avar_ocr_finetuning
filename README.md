@@ -1,32 +1,48 @@
 # ann_avar_ocr_finetuning
 
-# Avar Newspaper OCR
+Извлечение текста из сканов **аварских газет**: сегментация вёрстки, OCR и fine-tuning модели распознавания.
 
-A research project for extracting text from scanned Avar-language newspapers using document layout analysis and OCR fine-tuning.
+Основной рабочий путь — **классическая сегментация** (connected components) + **`cyrillic_PP-OCRv5_mobile_rec`**.  
+**PP-StructureV3** оставлен как exploratory baseline: на газетной вёрстке он работает хуже, чем классический пайплайн.
 
-The pipeline is based on PaddleOCR PP-StructureV3. It first detects structural regions on newspaper pages, such as text blocks, headings, images, and tables, then applies OCR to extract text from the detected regions. To improve recognition quality for the Avar language, the OCR recognition model is fine-tuned on manually annotated newspaper fragments.
+## Pipeline
 
-## Goals
+```
+PDF → render_pdf_to_png.py → PNG pages
+PNG → classical layout (connected components) → crops + metadata.json
+crops → OCR (cyrillic_PP-OCRv5_mobile_rec) → ocr_results.json
+manual_corrections.md → fine-tune v5 (Colab) → inference model on Drive
+fine-tuned model → OCR на новых страницах
+```
 
-- Detect layout regions in scanned newspaper pages.
-- Extract text from Avar-language newspaper scans.
-- Prepare a manually annotated OCR dataset.
-- Fine-tune an OCR recognition model for Avar text.
-- Evaluate OCR quality before and after fine-tuning.
+## Notebooks (Google Colab)
 
-----
+Запускаю в Google Colab, потому что там у меня есть GPU. 
+
+Ссылка на рабочую папку в Google Drive: https://drive.google.com/drive/folders/1Te8AWfT7UjYIMIiTGYAujxnYJI1CgPzl?usp=sharing
+
+Порядок запуска тетрадок:
+
+| Шаг | Notebook | Назначение |
+|-----|----------|------------|
+| 1 | [classical_layout_segmentation.ipynb](notebooks/classical_layout_segmentation.ipynb) | Обработка pdf-файла (файлов). Бинаризация, connected components, сохранение crops |
+| 2 | [baseline_ocr_on_classical_crops.ipynb](notebooks/baseline_ocr_on_classical_crops.ipynb) | Распознавание "чистой" моделью. OCR crops, экспорт `manual_corrections.md` |
+| 3 | [ocr_rec_finetune_colab.ipynb](notebooks/ocr_rec_finetune_colab.ipynb) | Дообучение (пока тестовое). CER/WER → smoke-test fine-tuning → export inference |\
+| — | [pp_structure_v3_explore.ipynb](notebooks/pp_structure_v3_explore.ipynb) | УСТАРЕВШАЯ тетрадка. Хотела дообучать эту модель, но она слишком плохо сегментирует (PP-StructureV3) |
+
+## Структура
+
+ann_avar_ocr_finetuning/
+├── notebooks/          # основной пайплайн (тетрадки для запуска в Colab)
+├── scripts/            # локальные утилиты (PDF → PNG, словарь, черновик разметки)
+├── docs/               # гайды (по рендеру и параметрам кропа, для себя)
+├── data/               # было нужно для PPOCRLabel-разметки (изначальный путь, от которого пришлось отказаться)
+├── configs/            # yaml для обучения
+├── train_pdfs/         # отрендеренные страницы для обучения
+├── tlarta_all_pdfs/    # полный корпус (gitignored, потому что слишком большой)
 
 
-# OCR для аварских газет
+## Ссылки
 
-Учебный проект по извлечению текста из сканов газет на аварском языке с использованием анализа структуры документа и дообучения OCR-модели.
-
-В проекте используется PaddleOCR PP-StructureV3 для выделения областей газетной страницы: текстовых блоков, заголовков, изображений и таблиц. После этого к найденным областям применяется OCR. Для повышения качества распознавания аварского текста OCR-модель дообучается на вручную размеченных фрагментах газет.
-
-## Цели проекта
-
-- Выделять структурные области на страницах газет.
-- Извлекать текст из сканов аварских газет.
-- Подготовить вручную размеченный OCR-датасет.
-- Дообучить модель распознавания текста на аварском языке.
-- Сравнить качество OCR до и после дообучения.
+- [PaddleOCR PP-StructureV3](https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/pipeline_usage/PP-StructureV3.html)
+- [Text recognition (PP-OCRv5)](https://www.paddleocr.ai/main/en/version3.x/module_usage/text_recognition.html)
